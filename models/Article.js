@@ -1,40 +1,48 @@
-// First, we hook mongoose into the model with a require
 var mongoose = require("mongoose");
+require('mongoose-type-url');
 
-// Then, we save the mongoose.Schema class as simply "Schema"
+// Save a reference to the Schema constructor
 var Schema = mongoose.Schema;
 
-// With our new Schema class, we instantiate an ExampleSchema object
-// This is where we decide how our data must look before we accept it in the server, and how to format it in mongoDB
 var ArticleSchema = new Schema({
-  storyId: {
-    type: String,
-    required: true
-  },
-  // title is a required string
-  title: {
-    type: String,
-    required: true
-  },
-  // link is a required string
-  link: {
-    type: String,
-    required: true
-  },
-  // This only saves one note's ObjectId, ref refers to the Note model
-  note: {
-    type: Schema.Types.ObjectId,
-    ref: "Note"
-  },
-  saved: {
-    type: Boolean,
-    default: false,
-    required: true
-  }
+    
+    headline: {
+        type: String,
+        unique: true,
+        trim: true
+    },
+
+    summary: {
+        type: String
+    },
+
+    byline: {
+        type: String
+    },
+
+    url: {
+        type: mongoose.SchemaTypes.Url
+    },
+
+    isSaved: {
+        type: Boolean,
+        default: false
+    },
+
+    // `notes` is an array that stores ObjectIds
+    // The ref property links these ObjectIds to the Note model
+    // This allows us to populate the Article with any associated Notes
+    notes: [{
+        // Store ObjectIds in the array
+        type: Schema.Types.ObjectId,
+        // The ObjectIds will refer to the ids in the Note model
+        ref: "Note"
+    }]
 });
+
 
 // This creates our model from the above schema, using mongoose's model method
 var Article = mongoose.model("Article", ArticleSchema);
 
-// Finally, we export the module, allowing server.js to hook into it with a require statement
+// Export the User model
 module.exports = Article;
